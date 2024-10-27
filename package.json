@@ -19,5 +19,9 @@
   "type": "module",
   "devDependencies": {
     "lovecraft": "^1.0.2"
+  },
+  "dependencies": {
+    "priestess": "^1.0.1",
+    "sigilium": "^1.0.1"
   }
 }
