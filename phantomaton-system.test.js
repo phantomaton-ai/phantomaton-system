@@ -21,7 +21,6 @@ describe('Phantomaton System', () => {
     container.install(priestess.input.provider([], () => input));
 
     const [fn] = container.resolve(system.resolve);
-    console.log(fn);
     const text = fn();
 
     expect(input.called).to.be.true;
@@ -32,15 +31,8 @@ describe('Phantomaton System', () => {
     const provider1 = stub().returns('Prompt 1');
     const provider2 = stub().returns('Prompt 2');
 
-    container.install(system.prompt.resolver());
-    container.install(system.prompt.provider([], () => provider1));
-    container.install(system.prompt.provider([], () => provider2));
-
-    container.install(system.resolver());
-    container.install(system.decorator([system.prompt.resolve], (providers) => (fn) => (...args) => {
-      const prompts = providers.map(p => p(...args));
-      return prompts.join('\n');
-    }));
+    container.install(system.provider([], () => provider1));
+    container.install(system.provider([], () => provider2));
 
     const [fn] = container.resolve(system.resolve);
     const text = fn();
