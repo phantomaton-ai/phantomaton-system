@@ -1,6 +1,6 @@
 # Phantomaton System 🤖
 
-The Phantomaton System is a module that provides a `plugin.system` extension point for generating a unified system prompt in Phantomaton applications.
+The Phantomaton System is a module that provides an extension point for generating a unified system prompt in Phantomaton applications.
 
 ## Usage 🛠️
 
