@@ -2,16 +2,19 @@ import sigilium from 'sigilium';
 import priestess from 'priestess';
 
 const system = sigilium.composite('system');
-const systemPrompt = sigilium.sigil('system.prompt');
+system.prompt = sigilium.sigil('system.prompt');
 
-system.provider([priestess.input.resolve], ([getInput]) => () => {
-  const input = getInput();
-  return `System prompt from user input: ${input}`;
-});
+const provider = system.provider(
+  [priestess.input.resolve],
+  ([input]) => () => input()
+);
 
-system.decorator([systemPrompt.resolve], (providers) => (fn) => (...args) => {
-  const prompts = providers.map(p => p(...args));
-  return prompts.join('\n');
-});
+const decorator = system.decorator(
+  [system.prompt.resolve],
+  (providers) => (fn) => (...args) => providers.map(p => p(...args)).join('\n')
+);
 
-export { system, systemPrompt };
+const plugin = () => ({ install: [provider, decorator] });
+plugin.system = system;
+
+export default plugin;
