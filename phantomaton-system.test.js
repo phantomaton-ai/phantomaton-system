@@ -1,53 +1,52 @@
 import { expect, stub } from 'lovecraft';
 import hierophant from 'hierophant';
 import priestess from 'priestess';
-import { system, systemPrompt } from './phantomaton-system.js';
+import plugin from './phantomaton-system.js';
+
+const { system } = plugin;
 
 describe('Phantomaton System', () => {
   let container;
 
   beforeEach(() => {
     container = hierophant();
+    plugin().install.forEach(c => container.install(c));
   });
 
   it('provides a system prompt from user input', () => {
-    const inputProvider = stub().returns('Hello, user!');
+    const output = 'Hello, user!';
+    const input = stub().returns(output);
 
     container.install(priestess.input.resolver());
-    container.install(priestess.input.provider([], inputProvider));
+    container.install(priestess.input.provider([], () => input));
 
-    container.install(system.resolver());
-    container.install(system.provider([priestess.input.resolve], ([getInput]) => () => {
-      const input = getInput();
-      return `System prompt from user input: ${input}`;
-    }));
+    const [fn] = container.resolve(system.resolve);
+    console.log(fn);
+    const text = fn();
 
-    const [getSystemPrompt] = container.resolve(system.resolve);
-    const systemPromptText = getSystemPrompt();
-
-    expect(inputProvider.called).to.be.true;
-    expect(systemPromptText).to.equal('System prompt from user input: Hello, user!');
+    expect(input.called).to.be.true;
+    expect(text).to.equal(output);
   });
 
   it('aggregates system prompt providers', () => {
     const provider1 = stub().returns('Prompt 1');
     const provider2 = stub().returns('Prompt 2');
 
-    container.install(systemPrompt.resolver());
-    container.install(systemPrompt.provider([], provider1));
-    container.install(systemPrompt.provider([], provider2));
+    container.install(system.prompt.resolver());
+    container.install(system.prompt.provider([], () => provider1));
+    container.install(system.prompt.provider([], () => provider2));
 
     container.install(system.resolver());
-    container.install(system.decorator([systemPrompt.resolve], (providers) => (fn) => (...args) => {
+    container.install(system.decorator([system.prompt.resolve], (providers) => (fn) => (...args) => {
       const prompts = providers.map(p => p(...args));
       return prompts.join('\n');
     }));
 
-    const [getSystemPrompt] = container.resolve(system.resolve);
-    const systemPromptText = getSystemPrompt();
+    const [fn] = container.resolve(system.resolve);
+    const text = fn();
 
     expect(provider1.called).to.be.true;
     expect(provider2.called).to.be.true;
-    expect(systemPromptText).to.equal('Prompt 1\nPrompt 2');
+    expect(text).to.equal('Prompt 1\nPrompt 2');
   });
 });
