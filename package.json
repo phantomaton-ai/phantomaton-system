@@ -18,6 +18,7 @@
   "description": "",
   "type": "module",
   "devDependencies": {
+    "hierophant": "^1.0.1",
     "lovecraft": "^1.0.2"
   },
   "dependencies": {
