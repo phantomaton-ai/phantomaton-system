@@ -6,20 +6,19 @@ import plugin from './phantomaton-system.js';
 const { system } = plugin;
 
 describe('Phantomaton System', () => {
+  const output = 'Hello, user!';
+  let input;
   let container;
 
   beforeEach(() => {
+    input = stub().returns(output);
     container = hierophant();
+    container.install(priestess.input.resolver());
+    container.install(priestess.input.provider([], () => input));
     plugin().install.forEach(c => container.install(c));
   });
 
   it('provides a system prompt from user input', () => {
-    const output = 'Hello, user!';
-    const input = stub().returns(output);
-
-    container.install(priestess.input.resolver());
-    container.install(priestess.input.provider([], () => input));
-
     const [fn] = container.resolve(system.resolve);
     const text = fn();
 
@@ -39,6 +38,6 @@ describe('Phantomaton System', () => {
 
     expect(provider1.called).to.be.true;
     expect(provider2.called).to.be.true;
-    expect(text).to.equal('Prompt 1\nPrompt 2');
+    expect(text).to.equal(`${output}\nPrompt 1\nPrompt 2`);
   });
 });
